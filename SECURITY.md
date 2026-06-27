@@ -114,6 +114,16 @@ Two limiters are available:
 | `RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Sliding window in milliseconds |
 | `RATE_LIMIT_MAX` | `100` | Max requests per window |
 
+**Backing store:**
+
+- **Production** — When `UPSTASH_REDIS_URL` and `UPSTASH_REDIS_TOKEN` are set, the rate limiter uses a **custom `UpstashStore`** (`src/middleware/rateLimitStore.ts`) backed by Upstash Redis (HTTP/REST). This eliminates the unbounded-memory issue of the default in-memory store.
+- **Development** — Falls back to the built-in `MemoryStore`, which is fine for local use.
+
+The store implementation:
+- `INCR` on every hit, `EXPIRE` on first hit (sets TTL to the window duration)
+- `TTL` to compute `resetTime` for rate-limit response headers
+- `DECR` on decrement, `DEL` on resetKey
+
 **Applying the auth limiter to a route:**
 
 ```ts
@@ -191,6 +201,8 @@ Encapsulates all auth business logic:
 | `BODY_LIMIT` | `10kb` | No | Max request payload size |
 | `RATE_LIMIT_WINDOW_MS` | `900000` | No | Rate limiter window (ms) |
 | `RATE_LIMIT_MAX` | `100` | No | Max requests per window |
+| `UPSTASH_REDIS_URL` | — | No | Upstash Redis REST URL (production) |
+| `UPSTASH_REDIS_TOKEN` | — | No | Upstash Redis REST token |
 
 ---
 
