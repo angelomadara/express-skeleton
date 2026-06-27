@@ -24,6 +24,10 @@ const config = {
   // ── Rate Limiting ──────────────────────────────
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000", 10),   // 15 min default
   rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100", 10),                 // 100 req/window default
+
+  // ── Upstash Redis (rate-limit store) ────────────
+  upstashRedisUrl: process.env.UPSTASH_REDIS_URL || "",
+  upstashRedisToken: process.env.UPSTASH_REDIS_TOKEN || "",
 };
 
 export default config;
