@@ -1,8 +1,12 @@
 import { Router } from "express";
 import userController from "../controllers/examples/user.controller";
 import healthController from "../controllers/examples/health.controller";
+import authRoutes from "./auth.routes";
 
 const router = Router();
+
+// ── Auth ────────────────────────────────────────────
+router.use("/auth", authRoutes);
 
 // ── Health ──────────────────────────────────────────
 router.get("/health", healthController.check);
