@@ -1,37 +1,39 @@
-import User, { UserDocument } from "../models/user.model";
+import { UserDocument } from "../models/user.model";
 import { ICreateUserDTO, IUpdateUserDTO, IPaginationOptions } from "../types";
+import { IUserRepository } from "../repositories";
 
 /**
  * UserService
- * Business logic layer — services are stateless classes that
- * encapsulate all data operations and business rules.
+ * Business logic layer — stateless class that encapsulates
+ * all user data operations via an injected repository.
+ *
+ * OCP: The service depends on IUserRepository (abstraction),
+ * not on Mongoose (concrete). Swap the implementation without
+ * modifying this file.
+ *
+ * DIP: High-level policy (service) and low-level detail (Mongo)
+ * both depend on the same interface.
  */
-class UserService {
+export class UserService {
+  constructor(private readonly userRepo: IUserRepository) {}
+
   async getAllUsers(options: IPaginationOptions): Promise<{ users: UserDocument[]; total: number }> {
-    const { page, limit } = options;
-    const skip = (page - 1) * limit;
-
-    const [users, total] = await Promise.all([User.find().skip(skip).limit(limit), User.countDocuments()]);
-
-    return { users, total };
+    return this.userRepo.findAll(options);
   }
 
   async getUserById(id: string): Promise<UserDocument | null> {
-    return User.findById(id);
+    return this.userRepo.findById(id);
   }
 
   async createUser(data: ICreateUserDTO): Promise<UserDocument> {
-    const user = new User(data);
-    return user.save();
+    return this.userRepo.create(data);
   }
 
   async updateUser(id: string, data: IUpdateUserDTO): Promise<UserDocument | null> {
-    return User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+    return this.userRepo.update(id, data);
   }
 
   async deleteUser(id: string): Promise<void> {
-    await User.findByIdAndDelete(id);
+    await this.userRepo.delete(id);
   }
 }
-
-export default new UserService();

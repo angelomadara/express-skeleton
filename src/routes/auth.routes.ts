@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authController from "../controllers/auth.controller";
+import { authController } from "../composition-root";
 import { authenticate } from "../middleware/auth";
 import { authLimiter } from "../middleware/rateLimiter";
 

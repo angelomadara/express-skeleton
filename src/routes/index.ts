@@ -1,5 +1,5 @@
 import { Router } from "express";
-import userController from "../controllers/examples/user.controller";
+import { userController, authController } from "../composition-root";
 import healthController from "../controllers/examples/health.controller";
 import authRoutes from "./auth.routes";
 

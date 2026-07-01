@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import BaseController from "./base.controller";
-import AuthService from "../services/auth.service";
+import { AuthService } from "../services/auth.service";
 import { AuthenticatedRequest } from "../types/express";
 
 /**
  * Authentication controller — register, login, and current-user endpoints.
+ * Receives its service dependency via constructor (DIP).
  */
-class AuthController extends BaseController {
+export class AuthController extends BaseController {
+  constructor(private readonly authService: AuthService) {
+    super();
+  }
+
   /**
    * POST /auth/register
    */
@@ -21,7 +26,7 @@ class AuthController extends BaseController {
         return this.sendBadRequest(res, "Password must be at least 6 characters");
       }
 
-      const result = await AuthService.register(name, email, password);
+      const result = await this.authService.register(name, email, password);
       return this.sendCreated(res, result, "Registration successful");
     } catch (error) {
       if (error instanceof Error) {
@@ -42,7 +47,7 @@ class AuthController extends BaseController {
         return this.sendBadRequest(res, "Email and password are required");
       }
 
-      const result = await AuthService.login(email, password);
+      const result = await this.authService.login(email, password);
       return this.sendSuccess(res, result, "Login successful");
     } catch (error) {
       if (error instanceof Error) {
@@ -63,7 +68,6 @@ class AuthController extends BaseController {
         return this.sendUnauthorized(res, "Not authenticated");
       }
 
-      // Fetch fresh user data (excluding password)
       const { default: User } = await import("../models/user.model");
       const user = await User.findById(authReq.user.id);
 
@@ -77,5 +81,3 @@ class AuthController extends BaseController {
     }
   };
 }
-
-export default new AuthController();

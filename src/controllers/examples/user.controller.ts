@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import BaseController from "../base.controller";
-import UserService from "../../services/user.service";
+import { UserService } from "../../services/user.service";
 import { ControllerMethod } from "../../types";
 import { InterfaceController } from "../interface.controller";
 
 /**
  * Full CRUD controller example — uses the composite InterfaceController.
  *
- * Imports a single interface that requires all six methods:
- *   index, store, show, edit, update, destroy
+ * Receives its service dependency via constructor (DIP).
+ * The service itself receives a repository abstraction (OCP + DIP).
  */
-class UserController extends BaseController implements InterfaceController {
-  private userService = UserService;
+export class UserController extends BaseController implements InterfaceController {
+  constructor(private readonly userService: UserService) {
+    super();
+  }
 
   index: ControllerMethod = async (req: Request, res: Response) => {
     try {
@@ -72,5 +74,3 @@ class UserController extends BaseController implements InterfaceController {
     }
   };
 }
-
-export default new UserController();
