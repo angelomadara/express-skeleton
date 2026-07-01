@@ -17,7 +17,7 @@ import { IUserRepository } from "../repositories";
 export class UserService {
   constructor(private readonly userRepo: IUserRepository) {}
 
-  async getAllUsers(options: IPaginationOptions): Promise<{ users: UserDocument[]; total: number }> {
+  async getAllUsers(options: IPaginationOptions): Promise<{ items: UserDocument[]; total: number }> {
     return this.userRepo.findAll(options);
   }
 

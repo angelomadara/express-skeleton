@@ -1,46 +1,27 @@
 import User, { UserDocument } from "../../models/user.model";
-import { ICreateUserDTO, IUpdateUserDTO, IPaginationOptions } from "../../types";
+import { ICreateUserDTO, IUpdateUserDTO } from "../../types";
+import { MongoBaseRepository } from "./BaseRepository";
 import { IUserRepository } from "../interfaces/IUserRepository";
 
 /**
  * Mongoose-backed implementation of IUserRepository.
  *
- * OPEN for extension: adding PostgresUserRepository, RedisUserRepository,
- * MockUserRepository (for tests) requires zero changes here.
+ * Extends MongoBaseRepository to inherit all 5 CRUD operations.
+ * Only entity-specific queries (findOneByEmail) are defined here.
  *
- * CLOSED for modification: the IUserRepository contract stays stable.
+ * To add a new data source (Postgres, Redis, mock):
+ *   class PostgresUserRepository implements IUserRepository { ... }
+ * — zero changes to this file.
  */
-export class MongoUserRepository implements IUserRepository {
-  async findAll(options: IPaginationOptions): Promise<{ users: UserDocument[]; total: number }> {
-    const { page, limit } = options;
-    const skip = (page - 1) * limit;
-
-    const [users, total] = await Promise.all([
-      User.find().skip(skip).limit(limit),
-      User.countDocuments(),
-    ]);
-
-    return { users, total };
-  }
-
-  async findById(id: string): Promise<UserDocument | null> {
-    return User.findById(id);
+export class MongoUserRepository
+  extends MongoBaseRepository<UserDocument, ICreateUserDTO, IUpdateUserDTO>
+  implements IUserRepository
+{
+  constructor() {
+    super(User);
   }
 
   async findOneByEmail(email: string): Promise<UserDocument | null> {
-    return User.findOne({ email });
-  }
-
-  async create(data: ICreateUserDTO): Promise<UserDocument> {
-    const user = new User(data);
-    return user.save();
-  }
-
-  async update(id: string, data: IUpdateUserDTO): Promise<UserDocument | null> {
-    return User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-  }
-
-  async delete(id: string): Promise<void> {
-    await User.findByIdAndDelete(id);
+    return this.model.findOne({ email });
   }
 }

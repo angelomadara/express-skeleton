@@ -19,8 +19,8 @@ export class UserController extends BaseController implements InterfaceControlle
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || parseInt(process.env.PAGE_LIMIT || "10");
-      const { users, total } = await this.userService.getAllUsers({ page, limit });
-      return this.sendSuccess(res, { users, pagination: { page, limit, total } }, "Users retrieved successfully");
+      const { items, total } = await this.userService.getAllUsers({ page, limit });
+      return this.sendSuccess(res, { items, pagination: { page, limit, total } }, "Users retrieved successfully");
     } catch (error) {
       return this.sendServerError(res, error, "Failed to retrieve users");
     }
